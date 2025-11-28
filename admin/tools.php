@@ -5,7 +5,6 @@ yourls_maybe_require_auth();
 
 yourls_html_head( 'tools', yourls__( 'Cool YOURLS Tools' ) );
 yourls_html_logo();
-yourls_html_menu();
 ?>
 
     <main role="main" class="sub_wrap">

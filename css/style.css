@@ -2,7 +2,7 @@ body {
 	font-family: Verdana, Arial;
 	font-size: 12px;
 	color: #595441;
-	background:#e3f3ff;
+	background:#fff;
 	text-align:center;
 	margin-top:0px;
 	padding-top:10px;
@@ -13,14 +13,6 @@ body {
 	margin:0 auto;
 	background:white;
 	text-align:left;
-	padding:5px 20px 10px 20px;
-	border-left:3px solid #2a85b3;
-	border-right:3px solid #2a85b3;
-	border-bottom:3px solid #2a85b3;
-	border-top:3px solid #2a85b3;
-	-moz-border-radius:20px;
-	-webkit-border-radius:20px;
-	border-radius:20px;
 }
 .hide-if-no-js {display: none;}
 div, p, td {
@@ -41,22 +33,40 @@ h1 a:hover{text-decoration:none;}
 h1 a:hover span{text-decoration:underline;color:#88c0eb}
 #yourls-logo {
     border:0px;
-    width:300px;
+    width:200px;
 }
+
+/* --- Admin menu as rounded buttons --- */
 ul#admin_menu {
-	min-height:100px;
-	list-style-type:none;
+	min-height:40px;
+	list-style:none;
 	padding:0;
+	margin:0;
 	font-size:105%;
 }
 ul#admin_menu li {
-	color:#aaa;
-	padding:1px 0;
+	list-style:none;
+	display:inline-block;
+	margin:0 6px 4px 0;
+	padding:0;
+	color:#595441;
 }
-ul#admin_menu li:hover {
-	list-style-type:square;
+ul#admin_menu li a {
+	display:inline-block;
+	padding:4px 10px;
+	border:1px solid #88c0eb;
+	border-radius:4px;
+	background:#e5f1ff;
+	color:#2a85b3;
+	text-decoration:none;
+}
+ul#admin_menu li a:hover {
+	background:#d7e8ff;
 	color:#000;
+	text-decoration:none;
 }
+
+/* ------------------------------------- */
 
 code {
 	background:#eaeaef;
@@ -258,20 +268,9 @@ a.bookmarklet:hover {
 	margin-top:20px;
 }
 #footer p {
-	padding:10px;
 	background:white;
 	margin:0 auto;
 	max-width:950px;
-	-moz-border-radius:10px;
-	-webkit-border-radius:10px;
-	border-radius:10px;
-	border:2px solid #2a85b3;
-	-moz-border-radius-bottomleft:30px;
-	-moz-border-radius-bottomright:30px;
-	-webkit-border-bottom-left-radius:25px;
-	-webkit-border-bottom-right-radius:25px;
-	border-bottom-left-radius:25px;
-	border-bottom-right-radius:25px;
 }
 #footer p a {
 	background:#fff url(../images/favicon.svg) 2px center no-repeat;

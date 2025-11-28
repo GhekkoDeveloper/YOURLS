@@ -1,18 +1,44 @@
 <?php
 
 /**
- * Display <h1> header and logo
+ * Display <h1> header, logo and menu
  *
  * @return void
  */
 function yourls_html_logo() {
     yourls_do_action( 'pre_html_logo' );
     ?>
-    <header role="banner">
-    <h1>
-        <a href="<?php echo yourls_admin_url( 'index.php' ) ?>" title="YOURLS"><span>YOURLS</span>: <span>Y</span>our <span>O</span>wn <span>URL</span> <span>S</span>hortener<br/>
-        <img src="<?php yourls_site_url(); ?>/images/yourls-logo.svg?v=<?php echo YOURLS_VERSION; ?>" id="yourls-logo" alt="YOURLS" title="YOURLS" /></a>
-    </h1>
+    <header role="banner" id="yourls-header">
+        <div class="yourls-header-inner" style="display:flex;align-items:center;justify-content:space-between;gap:20px;">
+
+            <!-- Left: admin menu -->
+            <div class="yourls-header-menu">
+                <?php
+                // Only output menu if function exists
+                if ( function_exists( 'yourls_html_menu' ) ) {
+                    yourls_html_menu();
+                }
+                ?>
+            </div>
+
+            <!-- Right: logo + title -->
+            <div class="yourls-header-logo" style="text-align:right;">
+                <h4 style="margin:0;">
+                    <a href="<?php echo yourls_admin_url( 'index.php' ); ?>" title="YOURLS" style="text-decoration:none;">
+                        <img
+                            src="<?php yourls_site_url(); ?>/images/yourls-logo.svg?v=<?php echo YOURLS_VERSION; ?>"
+                            id="yourls-logo"
+                            alt="YOURLS"
+                            title="YOURLS"
+                            style="vertical-align:middle;"
+                        />
+                        <br />
+                        YOURLS: Your Own URL Shortener
+                    </a>
+                </h4>
+            </div>
+
+        </div>
     </header>
     <?php
     yourls_do_action( 'html_logo' );
@@ -795,15 +821,28 @@ function yourls_login_screen( $error_msg = '' ) {
 function yourls_html_menu() {
     // Build menu links
     if( defined( 'YOURLS_USER' ) ) {
-        // Create a logout link with a nonce associated to fake user 'logout' : the user is not yet defined
-        // when the logout check is done -- see yourls_is_valid_user()
-        $logout_url = yourls_nonce_url( 'admin_logout',
-        yourls_add_query_arg(['action' => 'logout'], yourls_admin_url('index.php')), 'nonce', 'logout');
-        $logout_link = yourls_apply_filter('logout_link', sprintf( yourls__('Hello <strong>%s</strong>'), YOURLS_USER ) . ' (<a href="' . $logout_url . '" title="' . yourls_esc_attr__( 'Logout' ) . '">' . yourls__( 'Logout' ) . '</a>)' );
+        // Create a logout link with a nonce associated to fake user 'logout'
+        $logout_url = yourls_nonce_url(
+            'admin_logout',
+            yourls_add_query_arg( ['action' => 'logout'], yourls_admin_url('index.php') ),
+            'nonce',
+            'logout'
+        );
+
+        $logout_link = yourls_apply_filter(
+            'logout_link',
+            sprintf( yourls__('Hello <strong>%s</strong>'), YOURLS_USER ) .
+            ' (<a href="' . $logout_url . '" title="' . yourls_esc_attr__( 'Logout' ) . '">' .
+            yourls__( 'Logout' ) . '</a>)'
+        );
     } else {
         $logout_link = yourls_apply_filter( 'logout_link', '' );
     }
-    $help_link   = yourls_apply_filter( 'help_link',   '<a href="' . yourls_site_url( false ) .'/readme.html">' . yourls__( 'Help' ) . '</a>' );
+
+    $help_link = yourls_apply_filter(
+        'help_link',
+        '<a href="' . yourls_site_url( false ) . '/readme.html">' . yourls__( 'Help' ) . '</a>'
+    );
 
     $admin_links    = array();
     $admin_sublinks = array();
@@ -829,43 +868,81 @@ function yourls_html_menu() {
     $admin_links    = yourls_apply_filter( 'admin_links',    $admin_links );
     $admin_sublinks = yourls_apply_filter( 'admin_sublinks', $admin_sublinks );
 
-    // Now output menu
-    echo '<nav role="navigation"><ul id="admin_menu">'."\n";
-    if ( yourls_is_private() && !empty( $logout_link ) )
-        echo '<li id="admin_menu_logout_link">' . $logout_link .'</li>';
+    // Simple button style for menu links
+    $btn_style = 'display:inline-block;padding:4px 10px;margin:0;' .
+                 'border:1px solid #9fbbe0;border-radius:3px;' .
+                 'background:#e5f1ff;color:#004b87;text-decoration:none;font-size:12px;';
+    $btn_style_hover = 'background:#d7e8ff;';
+
+    // Output menu: logout text on top, buttons underneath
+    echo '<nav role="navigation" id="admin_nav" style="margin-bottom:10px;">' . "\n";
+
+    // Top: hello + logout
+    if ( yourls_is_private() && !empty( $logout_link ) ) {
+        echo '<div id="admin_menu_logout_link" style="margin-bottom:6px;">' . $logout_link . '</div>';
+    }
+
+    // Buttons list under the text
+    echo '<ul id="admin_menu" style="display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:0;padding:0;">' . "\n";
 
     foreach( (array)$admin_links as $link => $ar ) {
         if( isset( $ar['url'] ) ) {
             $anchor = isset( $ar['anchor'] ) ? $ar['anchor'] : $link;
             $title  = isset( $ar['title'] ) ? 'title="' . $ar['title'] . '"' : '';
-            printf( '<li id="admin_menu_%s_link" class="admin_menu_toplevel"><a href="%s" %s>%s</a>', $link, $ar['url'], $title, $anchor );
+
+            echo '<li class="admin_menu_toplevel">';
+            printf(
+                '<a href="%s" %s style="%s" onmouseover="this.style.background=\'%s\'" onmouseout="this.style.background=\'%s\'">%s</a>',
+                $ar['url'],
+                $title,
+                $btn_style,
+                '#d7e8ff',
+                '#e5f1ff',
+                $anchor
+            );
+            echo '</li>';
         }
-        // Output submenu if any. TODO: clean up, too many code duplicated here
+
+        // Submenus (plugins pages) – keep default look, shown under the buttons if present
         if( isset( $admin_sublinks[$link] ) ) {
-            echo "<ul>\n";
-            foreach( $admin_sublinks[$link] as $link => $ar ) {
-                if( isset( $ar['url'] ) ) {
-                    $anchor = isset( $ar['anchor'] ) ? $ar['anchor'] : $link;
-                    $title  = isset( $ar['title'] ) ? 'title="' . $ar['title'] . '"' : '';
-                    printf( '<li id="admin_menu_%s_link" class="admin_menu_sublevel admin_menu_sublevel_%s"><a href="%s" %s>%s</a>', $link, $link, $ar['url'], $title, $anchor );
+            echo '<li class="admin_menu_subwrap"><ul style="list-style:none;margin:4px 0 0 0;padding:0;">';
+            foreach( $admin_sublinks[$link] as $sub_link => $sub_ar ) {
+                if( isset( $sub_ar['url'] ) ) {
+                    $anchor = isset( $sub_ar['anchor'] ) ? $sub_ar['anchor'] : $sub_link;
+                    $title  = isset( $sub_ar['title'] ) ? 'title="' . $sub_ar['title'] . '"' : '';
+                    printf(
+                        '<li class="admin_menu_sublevel admin_menu_sublevel_%s"><a href="%s" %s>%s</a></li>',
+                        $sub_link,
+                        $sub_ar['url'],
+                        $title,
+                        $anchor
+                    );
                 }
             }
-            echo "</ul>\n";
+            echo '</ul></li>';
         }
     }
 
-    if ( isset( $help_link ) )
-        echo '<li id="admin_menu_help_link">' . $help_link .'</li>';
+    // Add Help as last button
+    if ( isset( $help_link ) ) {
+        echo '<li id="admin_menu_help_link">';
+        printf(
+            '<a href="%s" style="%s" onmouseover="this.style.background=\'%s\'" onmouseout="this.style.background=\'%s\'">%s</a>',
+            yourls_site_url( false ) . '/readme.html',
+            $btn_style,
+            '#d7e8ff',
+            '#e5f1ff',
+            yourls__( 'Help' )
+        );
+        echo '</li>';
+    }
 
     yourls_do_action( 'admin_menu' );
+
     echo "</ul></nav>\n";
+
     yourls_do_action( 'admin_notices' );
-    yourls_do_action( 'admin_notice' ); // because I never remember if it's 'notices' or 'notice'
-    /*
-    To display a notice:
-    $message = "<div>OMG, dude, I mean!</div>" );
-    yourls_add_action( 'admin_notices', function() use ( $message ) { echo (string) $message; } );
-    */
+    yourls_do_action( 'admin_notice' ); // backwards-compat
 }
 
 /**
